@@ -1,0 +1,28 @@
+{
+  "name": "theunshakeable-server",
+  "version": "1.0.0",
+  "description": "The Unshakeable server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DustinDoan315/TheUnshakeable-Server.git"
+  },
+  "author": "Dustin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DustinDoan315/TheUnshakeable-Server/issues"
+  },
+  "homepage": "https://github.com/DustinDoan315/TheUnshakeable-Server#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.4",
+    "socket.io": "^4.7.5",
+    "stripe": "^16.6.0"
+  }
+}
