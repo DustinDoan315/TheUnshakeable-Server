@@ -1,15 +1,16 @@
 const express = require("express");
-const app = express();
-const http = require("http").Server(app);
+const http = require("http");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const stripe = require("stripe")(
-  "sk_test_51PkFlEAGjI1JRUWvwLgQ6Ya0pW0wrj8ahsa39Vr3hantoOynuVRnAsfbOO2oGNRrlodg8VUTFCjexVyva1K0MmM400qBoo2FKW"
-);
-const PORT = 4000;
-const socketIO = require("socket.io")(http, {
+const socketIO = require("socket.io");
+const paymentRoutes = require("./routes/paymentRoutes");
+const { PORT, CORS_ORIGIN } = require("./config");
+
+const app = express();
+const server = http.createServer(app);
+const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: CORS_ORIGIN,
   },
 });
 
@@ -17,9 +18,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
+app.use("/api", paymentRoutes);
+
 const generateID = () => Math.random().toString(36).substring(2, 10);
 
-socketIO.on("connection", (socket) => {
+io.on("connection", (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
   socket.on("disconnect", () => {
@@ -28,57 +31,6 @@ socketIO.on("connection", (socket) => {
   });
 });
 
-app.get("/api", (req, res) => {
-  res.json({
-    name: "Dustin",
-    title: "Title",
-  });
-});
-
-// app.post("/create-checkout-session", async (req, res) => {
-//   const { priceId } = req.body;
-
-//   const session = await stripe.checkout.sessions.create({
-//     payment_method_types: ["card"],
-//     line_items: [
-//       {
-//         price: priceId,
-//         quantity: 1,
-//       },
-//     ],
-//     mode: "subscription",
-//     success_url: "https://your-app.com/success",
-//     cancel_url: "https://your-app.com/cancel",
-//   });
-
-//   res.json({ id: session.id });
-// });
-
-const calculateOrderAmount = (items) => {
-  let total = 0;
-  items.forEach((item) => {
-    total += item.amount;
-  });
-  return total;
-};
-
-app.post("/create-payment-intent", async (req, res) => {
-  const { items } = req.body;
-  console.log("====================================");
-  console.log("items:", items);
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(items),
-    currency: "usd",
-    automatic_payment_methods: {
-      enabled: true,
-    },
-  });
-
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
-});
-
-http.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
