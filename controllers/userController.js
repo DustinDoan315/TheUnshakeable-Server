@@ -25,6 +25,15 @@ const createUserHandler = async (req, res) => {
   }
 };
 
+const getUserHandler = async (req, res) => {
+  try {
+    const user = await getUserById(req.params.id);
+    res.send(user);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
 const updateUserHandler = async (req, res) => {
   try {
     const user = await updateUserById(req.params.id, req.body);
