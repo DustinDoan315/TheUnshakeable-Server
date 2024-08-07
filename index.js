@@ -2,7 +2,8 @@ const express = require("express");
 const http = require("http");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const paymentRoutes = require("./routes/paymentRoutes");
+const swaggerSetup = require("./swagger");
+
 const { PORT } = require("./config");
 
 const app = express();
@@ -12,6 +13,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
+swaggerSetup(app);
+const paymentRoutes = require("./routes/paymentRoutes");
 app.use("/api", paymentRoutes);
 
 server.listen(PORT, () => {

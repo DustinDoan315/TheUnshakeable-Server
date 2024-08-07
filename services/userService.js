@@ -1,6 +1,6 @@
 const { ACCESS_TOKEN_SECRET } = require("../config");
 
-const db = require("./firebase");
+const { db } = require("./firebase");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -54,6 +54,22 @@ const updateUserById = async (id, userData) => {
   return { success: true };
 };
 
+const updateUserPassword = async (email, newPassword) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  const userSnapshot = await db
+    .collection("users")
+    .where("email", "==", email)
+    .get();
+  if (!userSnapshot.empty) {
+    const userDoc = userSnapshot.docs[0];
+    await userDoc.ref.update({ password: hashedPassword });
+    return { success: true };
+  } else {
+    throw new Error("User not found");
+  }
+};
+
 const deleteUserById = async (id) => {
   const userRef = db.collection("users").doc(id);
   await userRef.delete();
@@ -95,6 +111,7 @@ module.exports = {
   createUser,
   getUserById,
   updateUserById,
+  updateUserPassword,
   deleteUserById,
   loginUser,
 };

@@ -1,10 +1,11 @@
-// controllers/userController.js
+const { admin } = require("../services/firebase");
 const {
   createUser,
   getUserById,
   updateUserById,
   deleteUserById,
   loginUser,
+  updateUserPassword,
 } = require("../services/userService");
 
 const createUserHandler = async (req, res) => {
@@ -62,10 +63,36 @@ const loginUserHandler = async (req, res) => {
   }
 };
 
+const resetPasswordHandler = async (req, res) => {
+  const { email } = req.body;
+  try {
+    await admin.auth().generatePasswordResetLink(email);
+    res.status(200).send({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    res.status(500).send({ error: "Failed to send password reset email" });
+  }
+};
+
+const updatePasswordHandler = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    await updateUserPassword(email, newPassword);
+
+    res.status(200).send({ message: "Password has been updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).send({ error: "Failed to update password" });
+  }
+};
+
 module.exports = {
   createUserHandler,
   getUserHandler,
   updateUserHandler,
   deleteUserHandler,
   loginUserHandler,
+  resetPasswordHandler,
+  updatePasswordHandler,
 };
